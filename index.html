@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Free browser-based bioprocess calculators for growth rate, yields, productivity, carbon balance, and CSV batch analysis." />
+  <title>BioProcess Calc — Free Bioprocess Analytics</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <a class="brand" href="#top">BioProcess Calc</a>
+      <nav>
+        <a href="#calculators">Calculators</a>
+        <a href="#csv">CSV Analyzer</a>
+        <a href="#how">How it works</a>
+      </nav>
+      <a class="button small" href="#calculators">Try free</a>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <div class="eyebrow">FREE • NO LOGIN • RUNS IN YOUR BROWSER</div>
+          <h1>Turn bioprocess data into useful calculations in seconds.</h1>
+          <p class="lead">
+            Calculate microbial growth rate, doubling time, biomass yield, product yield,
+            volumetric productivity and simple carbon flows. Upload a CSV to analyze a
+            complete cultivation interval without sending your data to a server.
+          </p>
+          <div class="hero-actions">
+            <a class="button" href="#calculators">Open calculators</a>
+            <a class="button secondary" href="#csv">Analyze CSV</a>
+          </div>
+          <div class="trust-row">
+            <span>✓ Client-side calculations</span>
+            <span>✓ Free static hosting</span>
+            <span>✓ Export-ready results</span>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <div class="mini-label">Example result</div>
+          <div class="metric-big">0.347 h⁻¹</div>
+          <div class="metric-name">Specific growth rate, μ</div>
+          <div class="metric-grid">
+            <div>
+              <strong>2.00 h</strong>
+              <span>Doubling time</span>
+            </div>
+            <div>
+              <strong>0.52 g/g</strong>
+              <span>Yx/s</span>
+            </div>
+            <div>
+              <strong>0.18 g/L/h</strong>
+              <span>Productivity</span>
+            </div>
+            <div>
+              <strong>40.0 g C</strong>
+              <span>Carbon in</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section compact">
+      <div class="container">
+        <div class="notice">
+          <strong>Scientific note:</strong>
+          This prototype uses standard mass-balance equations and simple start/end interval calculations.
+          Always verify units, sampling corrections, gas conditions and process assumptions before using results for regulated or critical decisions.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="calculators">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">CORE CALCULATORS</div>
+          <h2>Bioprocess calculations</h2>
+          <p>Enter values below. Results update when you press calculate.</p>
+        </div>
+
+        <div class="calculator-grid">
+          <article class="card">
+            <h3>Growth rate & doubling time</h3>
+            <p class="formula">μ = [ln(X₂) − ln(X₁)] / (t₂ − t₁)</p>
+            <div class="fields two">
+              <label>Initial biomass X₁ (g/L)<input id="gx1" type="number" step="any" value="1" /></label>
+              <label>Final biomass X₂ (g/L)<input id="gx2" type="number" step="any" value="4" /></label>
+              <label>Initial time t₁ (h)<input id="gt1" type="number" step="any" value="0" /></label>
+              <label>Final time t₂ (h)<input id="gt2" type="number" step="any" value="4" /></label>
+            </div>
+            <button class="button full" onclick="calcGrowth()">Calculate</button>
+            <div class="result-box" id="growthResult">μ = —<br>Doubling time = —</div>
+          </article>
+
+          <article class="card">
+            <h3>Biomass yield Yx/s</h3>
+            <p class="formula">Yx/s = (X₂ − X₁) / (S₁ − S₂)</p>
+            <div class="fields two">
+              <label>X₁ (g/L)<input id="yx1" type="number" step="any" value="1" /></label>
+              <label>X₂ (g/L)<input id="yx2" type="number" step="any" value="6" /></label>
+              <label>S₁ (g/L)<input id="ys1" type="number" step="any" value="20" /></label>
+              <label>S₂ (g/L)<input id="ys2" type="number" step="any" value="10" /></label>
+            </div>
+            <button class="button full" onclick="calcYxs()">Calculate</button>
+            <div class="result-box" id="yxsResult">Yx/s = —</div>
+          </article>
+
+          <article class="card">
+            <h3>Product yield Yp/s</h3>
+            <p class="formula">Yp/s = (P₂ − P₁) / (S₁ − S₂)</p>
+            <div class="fields two">
+              <label>P₁ (g/L)<input id="yp1" type="number" step="any" value="0" /></label>
+              <label>P₂ (g/L)<input id="yp2" type="number" step="any" value="2" /></label>
+              <label>S₁ (g/L)<input id="yps1" type="number" step="any" value="20" /></label>
+              <label>S₂ (g/L)<input id="yps2" type="number" step="any" value="10" /></label>
+            </div>
+            <button class="button full" onclick="calcYps()">Calculate</button>
+            <div class="result-box" id="ypsResult">Yp/s = —</div>
+          </article>
+
+          <article class="card">
+            <h3>Volumetric productivity</h3>
+            <p class="formula">Qp = (P₂ − P₁) / (t₂ − t₁)</p>
+            <div class="fields two">
+              <label>P₁ (g/L)<input id="qp1" type="number" step="any" value="0.2" /></label>
+              <label>P₂ (g/L)<input id="qp2" type="number" step="any" value="2.2" /></label>
+              <label>t₁ (h)<input id="qt1" type="number" step="any" value="0" /></label>
+              <label>t₂ (h)<input id="qt2" type="number" step="any" value="10" /></label>
+            </div>
+            <button class="button full" onclick="calcProductivity()">Calculate</button>
+            <div class="result-box" id="qpResult">Qp = —</div>
+          </article>
+
+          <article class="card">
+            <h3>Carbon in from glucose</h3>
+            <p class="formula">g C = glucose mass × 72.066 / 180.156</p>
+            <div class="fields">
+              <label>Glucose added (g)<input id="glucoseMass" type="number" step="any" value="100" /></label>
+            </div>
+            <button class="button full" onclick="calcCarbonGlucose()">Calculate</button>
+            <div class="result-box" id="carbonGlucoseResult">Carbon in = —</div>
+          </article>
+
+          <article class="card">
+            <h3>Carbon out from CO₂</h3>
+            <p class="formula">g C = (VCO₂ / Vm) × 12.011</p>
+            <div class="fields two">
+              <label>Net CO₂ volume (L)<input id="co2Vol" type="number" step="any" value="100" /></label>
+              <label>Molar gas volume Vm (L/mol)<input id="molarVol" type="number" step="any" value="24" /></label>
+            </div>
+            <button class="button full" onclick="calcCarbonCO2()">Calculate</button>
+            <div class="result-box" id="carbonCO2Result">Carbon out = —</div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="csv">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">BATCH ANALYZER</div>
+          <h2>Upload a CSV</h2>
+          <p>
+            Use columns named <code>time</code>, <code>biomass</code>, <code>substrate</code> and
+            <code>product</code>. Units should be h and g/L.
+          </p>
+        </div>
+
+        <div class="csv-layout">
+          <div class="card">
+            <h3>1. Upload cultivation data</h3>
+            <input class="file-input" id="csvFile" type="file" accept=".csv,text/csv" />
+            <div class="actions-row">
+              <button class="button" onclick="analyzeCSV()">Analyze CSV</button>
+              <button class="button secondary" onclick="downloadSample()">Download sample CSV</button>
+            </div>
+            <p class="small-muted">
+              Your file is parsed locally in the browser. This prototype does not upload the file anywhere.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>2. Summary</h3>
+            <div id="csvSummary" class="summary-empty">Upload a file to see results.</div>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <h3>Process trend preview</h3>
+          <canvas id="trendCanvas" width="1100" height="420"></canvas>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-title">
+            <h3>Parsed data</h3>
+            <button class="button secondary small" onclick="exportSummary()">Export summary CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table id="dataTable">
+              <thead><tr><th>Time</th><th>Biomass</th><th>Substrate</th><th>Product</th></tr></thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="how">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">HOW TO GROW THIS INTO A SAAS</div>
+          <h2>Start free. Add automation later.</h2>
+        </div>
+
+        <div class="steps">
+          <div class="step"><span>01</span><h3>Validate demand</h3><p>Share the free calculators with fermentation scientists and collect feedback.</p></div>
+          <div class="step"><span>02</span><h3>Add instrument formats</h3><p>Support real exports from bioreactors, off-gas analyzers, HPLC and biomass sheets.</p></div>
+          <div class="step"><span>03</span><h3>Add accounts</h3><p>Introduce login, saved projects, batch history and team workspaces.</p></div>
+          <div class="step"><span>04</span><h3>Monetize</h3><p>Keep simple tools free and charge for automated reporting, integrations and team features.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="cta">
+      <div class="container cta-inner">
+        <div>
+          <div class="eyebrow light">BIOPROCESS CALC</div>
+          <h2>Free first version. Real calculations. No backend required.</h2>
+        </div>
+        <a class="button light-button" href="#calculators">Start calculating</a>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-inner">
+      <span>BioProcess Calc — prototype</span>
+      <span>Built as a free static website.</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
