@@ -1,371 +1,502 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Multi-file bioprocess analytics workspace for bioreactor, OD/DCW, HPLC, off-gas and carbon-balance data." />
-  <title>BioProcess Calc — Multi-file Bioprocess Analytics</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Multi-file bioprocess analytics for bioreactor, OD/DCW, HPLC, substrate, sampling, carbon balance and publication figures.">
+  <title>BioProcess Calc — Integrated Fermentation Analytics</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="nav">
-    <div class="container nav-inner">
-      <a class="brand" href="#top">BioProcess Calc</a>
-      <nav>
-        <a href="#workspace">Workspace</a>
-        <a href="#mapping">Data mapping</a>
-        <a href="#carbon">Carbon balance</a>
-        <a href="#figures">Figures</a>
-      </nav>
-      <a class="button small" href="#workspace">Analyze data</a>
-    </div>
-  </header>
+<header class="topbar">
+  <div class="container navrow">
+    <a class="brand" href="#top">BioProcess Calc</a>
+    <nav>
+      <a href="#upload">Upload</a>
+      <a href="#time">Process time</a>
+      <a href="#results">Results</a>
+      <a href="#carbon">Carbon balance</a>
+      <a href="#figures">Figures</a>
+      <a href="#calculators">Calculators</a>
+    </nav>
+    <a class="btn small" href="#upload">Start analysis</a>
+  </div>
+</header>
 
-  <main id="top">
-    <section class="hero">
-      <div class="container hero-grid">
+<main id="top">
+<section class="hero">
+  <div class="container hero-grid">
+    <div>
+      <div class="eyebrow">INTEGRATED BIOPROCESS ANALYTICS</div>
+      <h1>Analyze the complete fermentation, not just one spreadsheet.</h1>
+      <p class="lead">
+        Combine bioreactor, OD/DCW, HPLC, residual-substrate, feed and sampling data on one
+        process-time axis. Calculate growth, yields, substrate utilization, productivity,
+        CO₂ evolution and carbon recovery, then export clean scientific figures.
+      </p>
+      <div class="hero-actions">
+        <a class="btn" href="#upload">Upload experiment data</a>
+        <a class="btn secondary" href="#calculators">Quick calculations</a>
+      </div>
+      <div class="trust">
+        <span>✓ Multiple files</span>
+        <span>✓ Explicit process time</span>
+        <span>✓ Carbon ledger</span>
+        <span>✓ SVG / high-resolution PNG</span>
+      </div>
+    </div>
+    <div class="hero-card">
+      <div class="mini-title">One fermentation workspace</div>
+      <div class="flow">
+        <div><b>Bioreactor</b><span>DO · pH · gases · feed</span></div>
+        <div><b>OD / DCW</b><span>growth and biomass</span></div>
+        <div><b>HPLC</b><span>product concentrations</span></div>
+        <div><b>Sampling</b><span>glucose · withdrawals</span></div>
+        <div class="flow-result"><b>Integrated output</b><span>KPIs · carbon · figures</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="notice-wrap">
+  <div class="container">
+    <div class="notice">
+      <strong>Research/process-development use:</strong>
+      calculations depend on correct column mapping, units, reactor-volume assumptions, sampling records
+      and gas calibration. The software reports missing information instead of filling it with invented values.
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="upload">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">01 — UPLOAD EXPERIMENT</div>
+      <h2>Upload each type of data directly</h2>
+      <p>You no longer need to put everything into one special template. Select the files you actually have.</p>
+    </div>
+
+    <div class="upload-grid">
+      <div class="upload-card required">
+        <div class="upload-icon">R</div>
         <div>
-          <div class="eyebrow">MULTI-FILE BIOPROCESS ANALYTICS</div>
-          <h1>Combine reactor, OD/DCW, HPLC and off-gas data on one process timeline.</h1>
-          <p class="lead">
-            Load multiple CSV or Excel files simultaneously, align them by process time, calculate
-            key fermentation metrics and build a carbon ledger in which feeds and additions enter
-            as positive carbon and sampling, off-gas CO₂ and other removals leave as negative carbon.
-          </p>
-          <div class="hero-actions">
-            <a class="button" href="#workspace">Open workspace</a>
-            <button class="button secondary" onclick="downloadDemoPack()">Download demo data</button>
-          </div>
-          <div class="trust-row">
-            <span>✓ Multiple files at once</span>
-            <span>✓ Manual + automatic time control</span>
-            <span>✓ SVG + high-resolution PNG figures</span>
-          </div>
-        </div>
-        <div class="hero-card">
-          <div class="mini-label">Analysis workflow</div>
-          <div class="workflow">
-            <div><strong>1</strong><span>Upload reactor + sampling + HPLC</span></div>
-            <div><strong>2</strong><span>Confirm process time and column mapping</span></div>
-            <div><strong>3</strong><span>Calculate KPIs, CO₂ and carbon balance</span></div>
-            <div><strong>4</strong><span>Export vector figures and results</span></div>
-          </div>
+          <h3>Bioreactor data</h3>
+          <p>DO, pH, temperature, agitation, gases, feed, OUR/CER/RQ.</p>
+          <input id="reactorFiles" type="file" multiple accept=".csv,.txt,.xlsx,.xls">
+          <div id="reactorCount" class="selected-count">No files selected</div>
         </div>
       </div>
-    </section>
 
-    <section class="section compact">
-      <div class="container">
-        <div class="notice">
-          <strong>Scientific scope:</strong>
-          This tool performs research/process-development calculations from the signals you map.
-          Carbon recovery is only as complete as the carbon-containing species measured. Unmeasured
-          metabolites, evaporation, unrecorded additions, gas-basis assumptions and analytical uncertainty
-          remain part of the unaccounted fraction.
+      <div class="upload-card">
+        <div class="upload-icon">X</div>
+        <div>
+          <h3>OD / DCW data</h3>
+          <p>OD600, dry cell weight, biomass sampling or calculated averages.</p>
+          <input id="biomassFiles" type="file" multiple accept=".csv,.txt,.xlsx,.xls">
+          <div id="biomassCount" class="selected-count">No files selected</div>
         </div>
       </div>
-    </section>
 
-    <section class="section alt" id="workspace">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">01 — DATA WORKSPACE</div>
-          <h2>Upload all files for one fermentation</h2>
-          <p>
-            Select the bioreactor export together with OD/DCW, residual-substrate, HPLC or sampling files.
-            The browser processes them together without requiring a server.
-          </p>
-        </div>
-
-        <div class="workspace-grid">
-          <div class="card">
-            <h3>Upload multiple files</h3>
-            <input class="file-input" id="multiFiles" type="file" multiple
-              accept=".csv,.txt,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
-            <div class="actions-row">
-              <button class="button" onclick="loadFiles()">Load files</button>
-              <button class="button secondary" onclick="clearWorkspace()">Clear</button>
-            </div>
-            <p class="small-muted">
-              CSV is parsed locally. Excel uses SheetJS in the browser. You can change the detected
-              file role and time column after loading.
-            </p>
-          </div>
-
-          <div class="card process-time-card">
-            <div class="time-card-top">
-              <div>
-                <div class="mini-label dark-label">PROCESS TIME</div>
-                <div class="time-big" id="globalDuration">—</div>
-                <div class="time-sub" id="globalDurationText">Load data to establish the process timeline.</div>
-              </div>
-              <div id="timeConfidence" class="confidence neutral">Not evaluated</div>
-            </div>
-            <div id="timeBasisMessage" class="time-basis-message">
-              Automatic mode prefers a reliable logger interval when spreadsheet date conversion makes timestamps inconsistent.
-            </div>
-          </div>
-        </div>
-
-        <div class="card files-card">
-          <div class="table-title">
-            <div>
-              <h3>Loaded files and time alignment</h3>
-              <p class="small-muted">
-                Use the offset to align offline files if their numeric time starts at a different zero.
-                For a reactor logger, you can force a known acquisition interval such as 5 seconds.
-              </p>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table id="filesTable">
-              <thead>
-                <tr>
-                  <th>File</th><th>Role</th><th>Rows</th><th>Time column</th>
-                  <th>Time basis</th><th>Duration</th><th>Offset h</th><th>Force interval s</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card process-window-card">
-          <div class="section-row">
-            <div>
-              <h3>Analysis process window</h3>
-              <p class="small-muted">
-                The process clock is always shown explicitly in hours. Set the region that represents the actual cultivation.
-                All KPIs, gas integration and carbon balance use this same window.
-              </p>
-            </div>
-            <button class="button" onclick="applyProcessWindow()">Apply process time</button>
-          </div>
-          <div class="fields four">
-            <label>Process start (h)
-              <input id="windowStart" type="number" step="any" value="0" />
-            </label>
-            <label>Process end (h)
-              <input id="windowEnd" type="number" step="any" placeholder="Auto" />
-            </label>
-            <label>Plot x-axis start (h)
-              <input id="plotStart" type="number" step="any" placeholder="Same as process" />
-            </label>
-            <label>Plot x-axis end (h)
-              <input id="plotEnd" type="number" step="any" placeholder="Same as process" />
-            </label>
-          </div>
-          <div id="windowStatus" class="status-line">No process window applied yet.</div>
+      <div class="upload-card">
+        <div class="upload-icon">P</div>
+        <div>
+          <h3>HPLC / product data</h3>
+          <p>Product titre, resveratrol, piceatannol or other metabolite concentrations.</p>
+          <input id="hplcFiles" type="file" multiple accept=".csv,.txt,.xlsx,.xls">
+          <div id="hplcCount" class="selected-count">No files selected</div>
         </div>
       </div>
-    </section>
 
-    <section class="section" id="mapping">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">02 — DATA MAPPING</div>
-          <h2>Tell the workspace what each signal means</h2>
-          <p>
-            Columns are suggested automatically, but you remain in control. This is important because
-            different bioreactors and laboratories use different column names and units.
-          </p>
-        </div>
-
-        <div class="mapping-block">
-          <h3>Online process signals</h3>
-          <div class="mapping-grid" id="onlineMapping"></div>
-        </div>
-
-        <div class="mapping-block">
-          <h3>Offline / sampling signals</h3>
-          <div class="mapping-grid" id="offlineMapping"></div>
-        </div>
-
-        <div class="section-row mapping-actions">
-          <div class="small-muted">
-            After mapping, build the analysis to calculate process KPIs and generate figures.
-          </div>
-          <button class="button" onclick="buildAnalysis()">Build analysis</button>
-        </div>
-
-        <div class="card kpi-card">
-          <h3>Important process outputs</h3>
-          <div id="kpiGrid" class="kpi-grid">
-            <div class="kpi muted-kpi"><strong>—</strong><span>Build analysis to calculate KPIs</span></div>
-          </div>
+      <div class="upload-card">
+        <div class="upload-icon">S</div>
+        <div>
+          <h3>Substrate / sampling</h3>
+          <p>Residual glucose, sample volume, substrate measurements or offline sampling sheet.</p>
+          <input id="samplingFiles" type="file" multiple accept=".csv,.txt,.xlsx,.xls">
+          <div id="samplingCount" class="selected-count">No files selected</div>
         </div>
       </div>
-    </section>
 
-    <section class="section alt" id="carbon">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">03 — CO₂ & CARBON BALANCE</div>
-          <h2>Track carbon as an explicit plus/minus ledger</h2>
-          <p>
-            Initial substrate, feeds, gas-phase CO₂ additions and manual carbon additions are positive.
-            Samples, evolved CO₂ and manual removals are negative. Final measured biomass, substrate and
-            products are treated as carbon remaining in the reactor.
-          </p>
-        </div>
-
-        <div class="carbon-layout">
-          <div class="card">
-            <h3>Mass-balance settings</h3>
-            <div class="fields two">
-              <label>Initial working volume (L)
-                <input id="initialVolume" type="number" step="any" value="1" />
-              </label>
-              <label>Initial glucose (g/L)
-                <input id="initialGlucose" type="number" step="any" value="40" />
-              </label>
-              <label>Feed glucose concentration (g/L)
-                <input id="feedGlucoseConc" type="number" step="any" value="400" />
-              </label>
-              <label>Feed signal type
-                <select id="feedMode">
-                  <option value="cumulative">Cumulative volume (mL)</option>
-                  <option value="rate">Feed rate (mL/h)</option>
-                </select>
-              </label>
-              <label>Biomass carbon fraction (g C/g DCW)
-                <input id="biomassCF" type="number" step="any" value="0.488" />
-              </label>
-              <label>Default sample volume (mL)
-                <input id="defaultSampleVolume" type="number" step="any" value="1.5" />
-              </label>
-              <label>Product 1 carbon fraction
-                <input id="product1CF" type="number" step="any" value="0.73672" />
-              </label>
-              <label>Product 1 unit
-                <select id="product1Unit"><option value="gL">g/L</option><option value="mgL">mg/L</option></select>
-              </label>
-              <label>Product 2 carbon fraction
-                <input id="product2CF" type="number" step="any" value="0.68846" />
-              </label>
-              <label>Product 2 unit
-                <select id="product2Unit"><option value="gL">g/L</option><option value="mgL">mg/L</option></select>
-              </label>
-              <label>Final working volume override (L)
-                <input id="finalVolumeOverride" type="number" step="any" placeholder="Auto" />
-              </label>
-              <label>CO₂ calculation method
-                <select id="co2Method">
-                  <option value="auto">Auto: CER first, then off-gas</option>
-                  <option value="cer">Use CER (mol/L/h)</option>
-                  <option value="offgas">Use off-gas CO₂ + gas flow</option>
-                </select>
-              </label>
-            </div>
-          </div>
-
-          <div class="card">
-            <h3>Gas-balance settings</h3>
-            <div class="fields two">
-              <label>Molar gas volume Vm (L/mol)
-                <input id="molarVolume" type="number" step="any" value="24.465" />
-              </label>
-              <label>CO₂ in air (vol.%)
-                <input id="airCO2" type="number" step="any" value="0.04" />
-              </label>
-              <label>N₂ in air (vol.%)
-                <input id="airN2" type="number" step="any" value="79.00" />
-              </label>
-              <label>O₂ in air (vol.%)
-                <input id="airO2" type="number" step="any" value="20.95" />
-              </label>
-            </div>
-            <div class="formula-note">
-              If off-gas O₂ is available, outlet gas flow is estimated from a nitrogen balance.
-              Otherwise the tool uses total inlet gas flow as an approximation and labels the result accordingly.
-            </div>
-          </div>
-        </div>
-
-        <div class="card ledger-editor">
-          <div class="section-row">
-            <div>
-              <h3>Manual carbon events</h3>
-              <p class="small-muted">
-                Use this for glucose boluses, carbon-containing additions, withdrawals or other events that are not represented by an uploaded column.
-              </p>
-            </div>
-            <button class="button secondary" onclick="addLedgerRow()">Add event</button>
-          </div>
-          <div class="table-wrap">
-            <table id="manualLedgerTable">
-              <thead><tr><th>Time h</th><th>Description</th><th>Direction</th><th>Carbon (g C)</th><th></th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="section-row carbon-actions">
-          <div class="small-muted">Recalculate after changing mapping, process time or balance assumptions.</div>
-          <button class="button" onclick="calculateCarbonBalance()">Calculate carbon balance</button>
-        </div>
-
-        <div class="carbon-results">
-          <div class="card">
-            <h3>Carbon ledger</h3>
-            <div id="carbonLedger" class="ledger-output">Run the carbon balance to populate the ledger.</div>
-          </div>
-          <div class="card">
-            <h3>Balance summary</h3>
-            <div id="carbonSummary" class="summary-empty">No balance calculated yet.</div>
-          </div>
+      <div class="upload-card wide">
+        <div class="upload-icon">+</div>
+        <div>
+          <h3>Additional files</h3>
+          <p>Feed records, off-gas files or any other data belonging to the same fermentation.</p>
+          <input id="additionalFiles" type="file" multiple accept=".csv,.txt,.xlsx,.xls">
+          <div id="additionalCount" class="selected-count">No files selected</div>
         </div>
       </div>
-    </section>
-
-    <section class="section" id="figures">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">04 — PUBLICATION-STYLE FIGURES</div>
-          <h2>Generate clean scientific plots directly from the mapped files</h2>
-          <p>
-            Figures use a white background, explicit units and process-time axes. Export as vector SVG
-            for journals or high-resolution PNG for presentations. Always check the target journal's exact
-            size, font and resolution requirements before submission.
-          </p>
-        </div>
-
-        <div class="figure-controls card">
-          <div class="fields four">
-            <label>Figure width (px)
-              <input id="figWidth" type="number" step="1" value="1800" />
-            </label>
-            <label>Figure height (px)
-              <input id="figHeight" type="number" step="1" value="1100" />
-            </label>
-            <label>Base font size
-              <input id="figFont" type="number" step="1" value="24" />
-            </label>
-            <label>Line width
-              <input id="figLine" type="number" step="any" value="3" />
-            </label>
-          </div>
-          <button class="button" onclick="generatePublicationFigures()">Generate / refresh figures</button>
-        </div>
-
-        <div id="figureGallery" class="figure-gallery">
-          <div class="card empty-figure">
-            Load and map data, then generate the figures.
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container footer-inner">
-      <span>BioProcess Calc</span>
-      <span>Client-side research and process-development analytics.</span>
     </div>
-  </footer>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-  <script src="app.js"></script>
+    <div class="upload-actions">
+      <button class="btn" onclick="loadAllSelectedFiles()">Load & merge selected files</button>
+      <button class="btn secondary" onclick="clearWorkspace()">Clear experiment</button>
+      <span id="loadStatus" class="status-text">Nothing loaded yet.</span>
+    </div>
+
+    <div class="card loaded-card">
+      <div class="row-between">
+        <div>
+          <h3>Loaded datasets</h3>
+          <p class="muted">Every loaded file remains separate but shares the same experiment timeline.</p>
+        </div>
+        <span id="loadedFileBadge" class="badge">0 files</span>
+      </div>
+      <div class="table-wrap">
+        <table id="filesTable">
+          <thead>
+          <tr>
+            <th>Dataset</th><th>Role</th><th>Rows</th><th>Time column</th>
+            <th>Time method</th><th>Duration</th><th>Offset h</th><th>Interval s</th><th></th>
+          </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card detection-card">
+      <div class="row-between">
+        <div>
+          <h3>Automatically detected measurements</h3>
+          <p class="muted">Only variables found in your uploaded files are shown here.</p>
+        </div>
+        <span id="detectedBadge" class="badge neutral">No data</span>
+      </div>
+      <div id="detectedSignals" class="signal-chips">
+        <span class="placeholder">Load files to detect measurements.</span>
+      </div>
+
+      <details class="advanced">
+        <summary>Advanced: correct a column mapping if automatic detection is wrong</summary>
+        <p class="muted">
+          Most users should not need this section. Use it only when an instrument uses an unusual column name.
+        </p>
+        <div id="advancedMapping" class="mapping-grid"></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="time">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">02 — PROCESS TIME</div>
+      <h2>Use one explicit fermentation clock</h2>
+      <p>
+        This is the time used for every KPI, carbon calculation and graph. Instrument date errors cannot silently
+        change the process duration.
+      </p>
+    </div>
+
+    <div class="time-grid">
+      <div class="process-time-card">
+        <div class="label">DETECTED REFERENCE PROCESS TIME</div>
+        <div id="referenceDuration" class="duration">—</div>
+        <div id="referenceDurationLong" class="duration-long">Load a bioreactor file.</div>
+        <div id="referenceMethod" class="method-box">No time method selected.</div>
+      </div>
+
+      <div class="card">
+        <h3>Analysis window</h3>
+        <div class="fields two">
+          <label>Process start (h)
+            <input id="processStart" type="number" step="any" value="0">
+          </label>
+          <label>Process end (h)
+            <input id="processEnd" type="number" step="any" placeholder="Auto">
+          </label>
+        </div>
+        <button class="btn full" onclick="applyProcessTime()">Apply process time</button>
+        <div id="processWindowStatus" class="inline-status">Not applied.</div>
+      </div>
+    </div>
+
+    <div class="card phases-card">
+      <div class="row-between">
+        <div>
+          <h3>Optional process phases</h3>
+          <p class="muted">Use these boundaries to mark batch, fed-batch and continuous/constant-feed phases on figures.</p>
+        </div>
+      </div>
+      <div class="fields four">
+        <label>Phase 1 name<input id="phase1Name" type="text" value="Batch"></label>
+        <label>Phase 1 end (h)<input id="phase1End" type="number" step="any" placeholder="Optional"></label>
+        <label>Phase 2 name<input id="phase2Name" type="text" value="Fed-batch"></label>
+        <label>Phase 2 end (h)<input id="phase2End" type="number" step="any" placeholder="Optional"></label>
+      </div>
+      <div class="fields two">
+        <label>Phase 3 name<input id="phase3Name" type="text" value="Continuous / constant feed"></label>
+        <label>Phase 3 ends at process end<input type="text" value="Automatically" disabled></label>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="results">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">03 — PROCESS RESULTS</div>
+      <h2>Generate the measurements normally needed to compare fermentation runs</h2>
+      <p>
+        Results are calculated only when the required measurements are available. Missing metrics are clearly labelled.
+      </p>
+    </div>
+
+    <div class="card assumptions-card">
+      <h3>Mass/yield assumptions</h3>
+      <div class="fields four">
+        <label>Initial working volume (L)<input id="initialVolume" type="number" step="any" value="1"></label>
+        <label>Feed glucose concentration (g/L)<input id="feedGlucoseConc" type="number" step="any" value="400"></label>
+        <label>Initial glucose override (g/L)<input id="initialGlucoseOverride" type="number" step="any" placeholder="Use first measured value"></label>
+        <label>Manual glucose additions (g)<input id="manualGlucoseG" type="number" step="any" value="0"></label>
+      </div>
+      <div class="fields four">
+        <label>Feed signal means
+          <select id="feedMode">
+            <option value="cumulative">Cumulative feed volume (mL)</option>
+            <option value="rate">Feed rate (mL/h)</option>
+          </select>
+        </label>
+        <label>Default sample volume (mL)<input id="defaultSampleVolume" type="number" step="any" value="1.5"></label>
+        <label>Final volume override (L)<input id="finalVolumeOverride" type="number" step="any" placeholder="Auto from feed − samples"></label>
+        <label>Product concentration unit
+          <select id="productUnit"><option value="mgL">mg/L</option><option value="gL">g/L</option></select>
+        </label>
+      </div>
+      <button class="btn" onclick="buildIntegratedResults()">Calculate integrated results</button>
+    </div>
+
+    <div id="kpiGrid" class="kpi-grid">
+      <div class="kpi empty"><strong>—</strong><span>Upload and calculate to generate results.</span></div>
+    </div>
+
+    <div class="card result-notes">
+      <h3>Calculation notes</h3>
+      <div id="calculationNotes" class="notes-list">
+        <p>No integrated analysis has been calculated yet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="carbon">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">04 — CO₂ & CARBON BALANCE</div>
+      <h2>Carbon additions are positive; samples and CO₂ leaving are negative</h2>
+      <p>
+        The balance accounts for initial substrate, glucose feed, manual additions, every sample withdrawal,
+        measured final biomass/substrate/products and CO₂ when usable gas data are available.
+      </p>
+    </div>
+
+    <div class="carbon-settings">
+      <div class="card">
+        <h3>Carbon fractions</h3>
+        <div class="fields two">
+          <label>Biomass C fraction (g C/g DCW)<input id="biomassCF" type="number" step="any" value="0.488"></label>
+          <label>Glucose C fraction<input id="glucoseCF" type="number" step="any" value="0.40002"></label>
+          <label>Product 1 C fraction<input id="product1CF" type="number" step="any" value="0.73672"></label>
+          <label>Product 2 C fraction<input id="product2CF" type="number" step="any" value="0.68846"></label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>CO₂ method</h3>
+        <div class="fields two">
+          <label>Calculation
+            <select id="co2Method">
+              <option value="auto">Automatic: CER first, then off-gas</option>
+              <option value="cer">CER only</option>
+              <option value="offgas">Off-gas CO₂ only</option>
+            </select>
+          </label>
+          <label>Molar gas volume Vm (L/mol)<input id="molarVolume" type="number" step="any" value="24.465"></label>
+          <label>CO₂ in air (vol.%)<input id="airCO2" type="number" step="any" value="0.04"></label>
+          <label>N₂ in air (vol.%)<input id="airN2" type="number" step="any" value="79"></label>
+        </div>
+      </div>
+    </div>
+
+    <div class="card manual-events">
+      <div class="row-between">
+        <div>
+          <h3>Additional carbon events</h3>
+          <p class="muted">Use only for additions/removals not already represented by your feed or sampling files.</p>
+        </div>
+        <button class="btn secondary small" onclick="addCarbonEvent()">Add event</button>
+      </div>
+      <div class="table-wrap">
+        <table id="carbonEvents">
+          <thead><tr><th>Time h</th><th>Description</th><th>Direction</th><th>g C</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <button class="btn carbon-button" onclick="calculateCarbonBalance()">Calculate CO₂ and carbon balance</button>
+
+    <div class="carbon-output-grid">
+      <div class="card">
+        <h3>Carbon ledger</h3>
+        <div id="carbonLedger"><p class="muted">No balance calculated.</p></div>
+      </div>
+      <div class="card">
+        <h3>Balance summary</h3>
+        <div id="carbonSummary"><p class="muted">No balance calculated.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section alt" id="figures">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">05 — SCIENTIFIC FIGURES</div>
+      <h2>Export figures suitable for slides, theses and manuscript preparation</h2>
+      <p>
+        Figures use the applied process window and optional phase boundaries. Export vector SVG or high-resolution PNG.
+        Final journal-specific dimensions should still be checked against the target journal guidelines.
+      </p>
+    </div>
+
+    <div class="card figure-settings">
+      <div class="fields four">
+        <label>Width (px)<input id="figWidth" type="number" step="1" value="1800"></label>
+        <label>Height (px)<input id="figHeight" type="number" step="1" value="1100"></label>
+        <label>Font size<input id="figFont" type="number" step="1" value="24"></label>
+        <label>Line width<input id="figLine" type="number" step="any" value="3"></label>
+      </div>
+      <div class="figure-setting-row">
+        <label class="check"><input id="showPhases" type="checkbox" checked> Show process phases</label>
+        <button class="btn" onclick="generateFigures()">Generate / refresh figures</button>
+      </div>
+    </div>
+
+    <div id="figureGallery" class="figure-gallery">
+      <div class="card empty-figure">No figures generated yet.</div>
+    </div>
+  </div>
+</section>
+
+<section class="section" id="calculators">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">06 — QUICK CALCULATORS</div>
+      <h2>Keep the original stand-alone bioprocess calculations</h2>
+      <p>These work independently of uploaded files and are useful for quick checks.</p>
+    </div>
+
+    <div class="calculator-grid">
+      <article class="calc card">
+        <h3>Growth rate & doubling time</h3>
+        <div class="formula">μ = [ln(X₂) − ln(X₁)] / Δt &nbsp; ; &nbsp; t<sub>d</sub> = ln(2)/μ</div>
+        <div class="fields two">
+          <label>X₁<input id="qX1" type="number" step="any" value="1"></label>
+          <label>X₂<input id="qX2" type="number" step="any" value="4"></label>
+          <label>t₁ (h)<input id="qT1" type="number" step="any" value="0"></label>
+          <label>t₂ (h)<input id="qT2" type="number" step="any" value="4"></label>
+        </div>
+        <button class="btn full" onclick="quickGrowth()">Calculate</button>
+        <div id="qGrowthResult" class="calc-result">μ = —<br>Doubling time = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Biomass yield Yx/s</h3>
+        <div class="formula">Yx/s = (X₂ − X₁)/(S₁ − S₂)</div>
+        <div class="fields two">
+          <label>X₁ (g/L)<input id="qYX1" type="number" step="any" value="1"></label>
+          <label>X₂ (g/L)<input id="qYX2" type="number" step="any" value="6"></label>
+          <label>S₁ (g/L)<input id="qYS1" type="number" step="any" value="20"></label>
+          <label>S₂ (g/L)<input id="qYS2" type="number" step="any" value="10"></label>
+        </div>
+        <button class="btn full" onclick="quickYxs()">Calculate</button>
+        <div id="qYxsResult" class="calc-result">Yx/s = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Product yield Yp/s</h3>
+        <div class="formula">Yp/s = (P₂ − P₁)/(S₁ − S₂)</div>
+        <div class="fields two">
+          <label>P₁ (g/L)<input id="qP1" type="number" step="any" value="0"></label>
+          <label>P₂ (g/L)<input id="qP2" type="number" step="any" value="2"></label>
+          <label>S₁ (g/L)<input id="qPS1" type="number" step="any" value="20"></label>
+          <label>S₂ (g/L)<input id="qPS2" type="number" step="any" value="10"></label>
+        </div>
+        <button class="btn full" onclick="quickYps()">Calculate</button>
+        <div id="qYpsResult" class="calc-result">Yp/s = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Substrate consumption efficiency</h3>
+        <div class="formula">η<sub>S</sub> = (S₀ − S<sub>f</sub>)/S₀ × 100%</div>
+        <div class="fields two">
+          <label>Initial substrate (g/L)<input id="qS0" type="number" step="any" value="40"></label>
+          <label>Final substrate (g/L)<input id="qSf" type="number" step="any" value="5"></label>
+        </div>
+        <button class="btn full" onclick="quickSubstrateEfficiency()">Calculate</button>
+        <div id="qSubstrateResult" class="calc-result">Substrate consumption = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Volumetric product productivity</h3>
+        <div class="formula">Qp = (P₂ − P₁)/Δt</div>
+        <div class="fields two">
+          <label>P₁ (g/L)<input id="qProd1" type="number" step="any" value="0"></label>
+          <label>P₂ (g/L)<input id="qProd2" type="number" step="any" value="2"></label>
+          <label>t₁ (h)<input id="qProdT1" type="number" step="any" value="0"></label>
+          <label>t₂ (h)<input id="qProdT2" type="number" step="any" value="10"></label>
+        </div>
+        <button class="btn full" onclick="quickProductivity()">Calculate</button>
+        <div id="qProductivityResult" class="calc-result">Qp = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Biomass productivity</h3>
+        <div class="formula">Qx = (X₂ − X₁)/Δt</div>
+        <div class="fields two">
+          <label>X₁ (g/L)<input id="qBio1" type="number" step="any" value="1"></label>
+          <label>X₂ (g/L)<input id="qBio2" type="number" step="any" value="8"></label>
+          <label>t₁ (h)<input id="qBioT1" type="number" step="any" value="0"></label>
+          <label>t₂ (h)<input id="qBioT2" type="number" step="any" value="20"></label>
+        </div>
+        <button class="btn full" onclick="quickBiomassProductivity()">Calculate</button>
+        <div id="qBiomassResult" class="calc-result">Qx = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Carbon from glucose</h3>
+        <div class="formula">g C = glucose mass × 0.40002</div>
+        <label>Glucose (g)<input id="qGlucose" type="number" step="any" value="100"></label>
+        <button class="btn full" onclick="quickGlucoseCarbon()">Calculate</button>
+        <div id="qGlucoseResult" class="calc-result">Carbon = —</div>
+      </article>
+
+      <article class="calc card">
+        <h3>Carbon from CO₂ volume</h3>
+        <div class="formula">g C = (VCO₂/Vm) × 12.011</div>
+        <div class="fields two">
+          <label>CO₂ volume (L)<input id="qCO2" type="number" step="any" value="100"></label>
+          <label>Vm (L/mol)<input id="qVm" type="number" step="any" value="24.465"></label>
+        </div>
+        <button class="btn full" onclick="quickCO2Carbon()">Calculate</button>
+        <div id="qCO2Result" class="calc-result">Carbon = —</div>
+      </article>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="container footer-row">
+    <span>BioProcess Calc</span>
+    <span>Browser-based bioprocess research analytics.</span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
