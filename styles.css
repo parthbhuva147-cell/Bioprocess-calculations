@@ -138,3 +138,23 @@ code{background:#e8eef8;padding:2px 6px;border-radius:5px}
   .cta-inner,.footer-inner{flex-direction:column;align-items:flex-start}
   h1{font-size:2.65rem}
 }
+
+.signal-list{display:flex;flex-wrap:wrap;gap:9px;margin-top:22px}
+.signal-list span{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.09);padding:8px 11px;border-radius:999px;font-size:.82rem}
+.hero-mini-note{color:#aebbd0;font-size:.88rem;margin-top:22px;line-height:1.6}
+.hero-mini-note strong{color:#fff}
+.detected-card{margin-top:20px}
+.detected-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.detected-chip{padding:7px 10px;border-radius:999px;background:#eef4ff;border:1px solid #d7e4ff;font-size:.79rem;color:#17479f}
+.detected-chip strong{color:#142033}
+.muted-placeholder{color:var(--muted)}
+.chart-toolbar{display:flex;justify-content:space-between;gap:20px;align-items:flex-start}
+.metric-select-label{min-width:280px}
+select{width:100%;margin-top:6px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--text);font:inherit}
+.summary-kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}
+.summary-kpis div{background:#f7f9fc;border-radius:10px;padding:11px}
+.summary-kpis strong,.summary-kpis span{display:block}
+.summary-kpis strong{font-size:1.05rem}
+.summary-kpis span{color:var(--muted);font-size:.76rem;margin-top:3px}
+.analysis-status{padding:9px 11px;border-radius:9px;background:#edf7f2;color:#0b6d4c;margin-bottom:12px;font-weight:700;font-size:.85rem}
+@media(max-width:700px){.chart-toolbar{flex-direction:column}.metric-select-label{min-width:100%}.summary-kpis{grid-template-columns:1fr}}

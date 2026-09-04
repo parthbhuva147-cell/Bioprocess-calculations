@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Free browser-based bioprocess calculators for growth rate, yields, productivity, carbon balance, and CSV batch analysis." />
-  <title>BioProcess Calc — Free Bioprocess Analytics</title>
+  <meta name="description" content="Browser-based bioprocess calculators and bioreactor data analyzer for CSV and Excel exports." />
+  <title>BioProcess Calc — Bioprocess Analytics</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -13,10 +13,10 @@
       <a class="brand" href="#top">BioProcess Calc</a>
       <nav>
         <a href="#calculators">Calculators</a>
-        <a href="#csv">CSV Analyzer</a>
-        <a href="#features">Capabilities</a>
+        <a href="#analyzer">Data Analyzer</a>
+        <a href="#scope">Data guide</a>
       </nav>
-      <a class="button small" href="#calculators">Try free</a>
+      <a class="button small" href="#analyzer">Analyze data</a>
     </div>
   </header>
 
@@ -25,44 +25,33 @@
       <div class="container hero-grid">
         <div>
           <div class="eyebrow">BIOPROCESS ANALYTICS • NO LOGIN REQUIRED</div>
-          <h1>Turn bioprocess data into useful calculations in seconds.</h1>
+          <h1>Analyze bioprocess calculations and bioreactor data in your browser.</h1>
           <p class="lead">
-            Calculate microbial growth rate, doubling time, biomass yield, product yield,
-            volumetric productivity and simple carbon flows. Upload a CSV to analyze a
-            complete cultivation interval without sending your data to a server.
+            Calculate growth kinetics and yields, or load real CSV/Excel exports from a bioreactor.
+            The analyzer detects timestamps and common process signals such as DO, pH, temperature,
+            agitation, gas flow, feed, OUR, CER and RQ.
           </p>
           <div class="hero-actions">
-            <a class="button" href="#calculators">Open calculators</a>
-            <a class="button secondary" href="#csv">Analyze CSV</a>
+            <a class="button" href="#analyzer">Analyze instrument data</a>
+            <a class="button secondary" href="#calculators">Open calculators</a>
           </div>
           <div class="trust-row">
-            <span>✓ No account required</span>
-            <span>✓ Data stays in your browser</span>
-            <span>✓ Export-ready results</span>
+            <span>✓ CSV & Excel</span>
+            <span>✓ Browser-side analysis</span>
+            <span>✓ Real timestamp support</span>
           </div>
         </div>
 
         <div class="hero-card">
-          <div class="mini-label">Example result</div>
-          <div class="metric-big">0.347 h⁻¹</div>
-          <div class="metric-name">Specific growth rate, μ</div>
-          <div class="metric-grid">
-            <div>
-              <strong>2.00 h</strong>
-              <span>Doubling time</span>
-            </div>
-            <div>
-              <strong>0.52 g/g</strong>
-              <span>Yx/s</span>
-            </div>
-            <div>
-              <strong>0.18 g/L/h</strong>
-              <span>Productivity</span>
-            </div>
-            <div>
-              <strong>40.0 g C</strong>
-              <span>Carbon in</span>
-            </div>
+          <div class="mini-label">Recognized process signals</div>
+          <div class="signal-list">
+            <span>Timestamp</span><span>DO</span><span>pH</span><span>Temperature</span>
+            <span>Stirrer</span><span>Air</span><span>O₂</span><span>CO₂</span>
+            <span>Feed</span><span>OUR</span><span>CER</span><span>RQ</span>
+          </div>
+          <div class="hero-mini-note">
+            Designed to recognize headers such as
+            <strong>TimeStamp(UTC+02:00 interval=5)</strong> and other instrument-style names.
           </div>
         </div>
       </div>
@@ -72,8 +61,84 @@
       <div class="container">
         <div class="notice">
           <strong>For research use:</strong>
-          Calculations are intended for exploratory bioprocess analysis. Review units, process conditions,
-          sampling corrections and calculation assumptions before using results in formal reports or regulated workflows.
+          Results are intended for exploratory process analysis. Verify units, sensor calibration,
+          sampling corrections and calculation assumptions before formal or regulated use.
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="analyzer">
+      <div class="container">
+        <div class="section-heading">
+          <div class="eyebrow">BIOREACTOR DATA ANALYZER</div>
+          <h2>Upload your real instrument export</h2>
+          <p>
+            Supports CSV and Excel files. It automatically searches for timestamp/time columns and
+            common process signals instead of requiring a fixed four-column template.
+          </p>
+        </div>
+
+        <div class="csv-layout">
+          <div class="card">
+            <h3>1. Select data file</h3>
+            <input class="file-input" id="processFile" type="file"
+                   accept=".csv,.txt,.xlsx,.xls,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+            <div class="actions-row">
+              <button class="button" onclick="analyzeProcessFile()">Analyze file</button>
+              <button class="button secondary" onclick="downloadInstrumentSample()">Download sample</button>
+            </div>
+            <p class="small-muted">
+              Files are processed in your browser. Excel parsing uses the SheetJS browser library.
+            </p>
+          </div>
+
+          <div class="card">
+            <h3>2. File summary</h3>
+            <div id="fileSummary" class="summary-empty">Choose a file to begin.</div>
+          </div>
+        </div>
+
+        <div class="card detected-card">
+          <div class="table-title">
+            <div>
+              <h3>Detected columns</h3>
+              <p class="small-muted">The analyzer keeps duplicate instrument headers separate using their column letters.</p>
+            </div>
+          </div>
+          <div id="detectedColumns" class="detected-list">
+            <span class="muted-placeholder">No file analyzed yet.</span>
+          </div>
+        </div>
+
+        <div class="card chart-card">
+          <div class="chart-toolbar">
+            <div>
+              <h3>Process trend</h3>
+              <p class="small-muted">Select any numeric process signal from your file.</p>
+            </div>
+            <label class="metric-select-label">Signal
+              <select id="metricSelect" onchange="drawSelectedMetric()">
+                <option value="">Analyze a file first</option>
+              </select>
+            </label>
+          </div>
+          <canvas id="trendCanvas" width="1100" height="420"></canvas>
+        </div>
+
+        <div class="card table-card">
+          <div class="table-title">
+            <div>
+              <h3>Data preview</h3>
+              <p class="small-muted">First 100 rows are displayed. Full file is used for calculations.</p>
+            </div>
+            <button class="button secondary small" onclick="exportProcessSummary()">Export summary CSV</button>
+          </div>
+          <div class="table-wrap">
+            <table id="processTable">
+              <thead></thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </section>
@@ -83,7 +148,7 @@
         <div class="section-heading">
           <div class="eyebrow">CORE CALCULATORS</div>
           <h2>Bioprocess calculations</h2>
-          <p>Enter values below. Results update when you press calculate.</p>
+          <p>Use these calculators when biomass, substrate or product measurements come from offline sampling.</p>
         </div>
 
         <div class="calculator-grid">
@@ -163,85 +228,17 @@
       </div>
     </section>
 
-    <section class="section alt" id="csv">
+    <section class="section" id="scope">
       <div class="container">
         <div class="section-heading">
-          <div class="eyebrow">BATCH ANALYZER</div>
-          <h2>Upload a CSV</h2>
-          <p>
-            Use columns named <code>time</code>, <code>biomass</code>, <code>substrate</code> and
-            <code>product</code>. Units should be h and g/L.
-          </p>
+          <div class="eyebrow">DATA GUIDE</div>
+          <h2>Why a bioreactor file and a sampling file are different</h2>
         </div>
-
-        <div class="csv-layout">
-          <div class="card">
-            <h3>1. Upload cultivation data</h3>
-            <input class="file-input" id="csvFile" type="file" accept=".csv,text/csv" />
-            <div class="actions-row">
-              <button class="button" onclick="analyzeCSV()">Analyze CSV</button>
-              <button class="button secondary" onclick="downloadSample()">Download sample CSV</button>
-            </div>
-            <p class="small-muted">
-              Your file is parsed locally in the browser. This prototype does not upload the file anywhere.
-            </p>
-          </div>
-
-          <div class="card">
-            <h3>2. Summary</h3>
-            <div id="csvSummary" class="summary-empty">Upload a file to see results.</div>
-          </div>
-        </div>
-
-        <div class="card chart-card">
-          <h3>Process trend preview</h3>
-          <canvas id="trendCanvas" width="1100" height="420"></canvas>
-        </div>
-
-        <div class="card table-card">
-          <div class="table-title">
-            <h3>Parsed data</h3>
-            <button class="button secondary small" onclick="exportSummary()">Export summary CSV</button>
-          </div>
-          <div class="table-wrap">
-            <table id="dataTable">
-              <thead><tr><th>Time</th><th>Biomass</th><th>Substrate</th><th>Product</th></tr></thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section class="section" id="features">
-      <div class="container">
-        <div class="section-heading">
-          <div class="eyebrow">CAPABILITIES</div>
-          <h2>Designed for routine bioprocess calculations</h2>
-          <p>Use individual calculators for quick checks or upload a structured CSV for cultivation-level analysis.</p>
-        </div>
-
         <div class="steps">
-          <div class="step">
-            <span>01</span>
-            <h3>Growth kinetics</h3>
-            <p>Estimate specific growth rate and doubling time from biomass measurements over a defined interval.</p>
-          </div>
-          <div class="step">
-            <span>02</span>
-            <h3>Yield analysis</h3>
-            <p>Calculate biomass and product yields relative to substrate consumption.</p>
-          </div>
-          <div class="step">
-            <span>03</span>
-            <h3>Productivity</h3>
-            <p>Calculate volumetric product formation over the selected cultivation interval.</p>
-          </div>
-          <div class="step">
-            <span>04</span>
-            <h3>Carbon flows</h3>
-            <p>Estimate carbon input from glucose and carbon output associated with measured CO₂ volume.</p>
-          </div>
+          <div class="step"><span>01</span><h3>Online process data</h3><p>Bioreactor exports usually contain DO, pH, temperature, stirring, gases, feed and off-gas signals.</p></div>
+          <div class="step"><span>02</span><h3>Offline measurements</h3><p>OD, DCW, residual glucose and HPLC product concentrations are normally measured only at sampling points.</p></div>
+          <div class="step"><span>03</span><h3>Process analysis</h3><p>This analyzer can inspect the continuous reactor file directly and visualize its native process signals.</p></div>
+          <div class="step"><span>04</span><h3>Yield calculations</h3><p>Yx/s and Yp/s require biomass/substrate/product data; these can later be synchronized with reactor timestamps.</p></div>
         </div>
       </div>
     </section>
@@ -250,9 +247,9 @@
       <div class="container cta-inner">
         <div>
           <div class="eyebrow light">BIOPROCESS CALC</div>
-          <h2>Analyze essential bioprocess parameters in one place.</h2>
+          <h2>From raw instrument exports to understandable process trends.</h2>
         </div>
-        <a class="button light-button" href="#calculators">Start calculating</a>
+        <a class="button light-button" href="#analyzer">Analyze data</a>
       </div>
     </section>
   </main>
@@ -264,6 +261,7 @@
     </div>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="app.js"></script>
 </body>
 </html>
