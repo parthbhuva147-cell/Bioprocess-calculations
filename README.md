@@ -29,3 +29,18 @@ Browser-based bioprocess calculators and instrument-data analyzer.
 
 Raw bioreactor files normally do not contain offline biomass, residual substrate, or HPLC product measurements.
 Yx/s and Yp/s therefore require separate sampling data. A future version can merge sampling and reactor files by timestamp.
+
+
+## V4 timestamp correction
+
+V4 checks the acquisition interval embedded in instrument headers such as:
+
+`TimeStamp(UTC+02:00 interval=5)`
+
+If Excel has auto-converted ambiguous D/M/Y dates and the resulting calendar span is implausible compared with the row count and logging interval, BioProcess Calc uses:
+
+`elapsed process time = (row index × acquisition interval)`
+
+instead of reporting artificial month-long gaps.
+
+For the tested 118,739-row export with a 5-second interval, the interval-based recorded duration is approximately 164.91 h.

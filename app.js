@@ -68,16 +68,36 @@ function parseDateValue(v){
   if(typeof v==="number" && v>20000 && v<100000){
     return new Date((v-25569)*86400*1000);
   }
+
   const s=String(v??"").trim();
   if(!s) return null;
-  let d=new Date(s);
-  if(!isNaN(d)) return d;
-  let m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{4})[ T](\d{1,2}):(\d{2})(?::(\d{2}(?:\.\d+)?))?$/);
+
+  // Prefer day/month/year for explicit slash/dot/dash timestamps.
+  // This avoids interpreting 10/8/26 as October 8 in browsers that assume US dates.
+  let m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})[ T](\d{1,2}):(\d{1,2})(?::(\d{1,2}(?:\.\d+)?))?$/);
   if(m){
-    d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),Number(m[4]),Number(m[5]),Number(m[6]||0));
+    let year=Number(m[3]);
+    if(year<100) year+=2000;
+    const d=new Date(
+      year,
+      Number(m[2])-1,
+      Number(m[1]),
+      Number(m[4]),
+      Number(m[5]),
+      Number(m[6]||0)
+    );
     if(!isNaN(d)) return d;
   }
-  return null;
+
+  const d=new Date(s);
+  return !isNaN(d) ? d : null;
+}
+
+function extractIntervalSeconds(header){
+  const m=String(header??"").match(/interval\s*=\s*(\d+(?:\.\d+)?)/i);
+  if(!m) return null;
+  const seconds=Number(m[1]);
+  return Number.isFinite(seconds) && seconds>0 ? seconds : null;
 }
 function splitCSVLine(line,delimiter){
   const out=[]; let cur="",q=false;
@@ -180,22 +200,99 @@ function findTimeColumn(columns){
   return columns.find(c=>c.role==="Time") || null;
 }
 function buildElapsed(rows,timeCol){
-  if(!timeCol) return {elapsed:[],startDate:null,endDate:null};
+  if(!timeCol) return {
+    elapsed:[],
+    startDate:null,
+    endDate:null,
+    basis:"unknown",
+    intervalSec:null,
+    warning:null
+  };
+
   const vals=rows.map(r=>r[timeCol.index]);
-  let dates=vals.map(parseDateValue);
+  const intervalSec=extractIntervalSeconds(timeCol.header);
+  const dates=vals.map(parseDateValue);
   const validDates=dates.filter(Boolean);
+
   if(validDates.length>=Math.min(3,Math.ceil(rows.length*0.2))){
-    const start=validDates[0].getTime();
-    const elapsed=dates.map(d=>d?(d.getTime()-start)/3600000:NaN);
-    return {elapsed,startDate:validDates[0],endDate:validDates[validDates.length-1]};
+    const times=validDates.map(d=>d.getTime());
+    const minTime=Math.min(...times);
+    const maxTime=Math.max(...times);
+    const calendarDurationH=(maxTime-minTime)/3600000;
+
+    if(intervalSec){
+      const intervalDurationH=((rows.length-1)*intervalSec)/3600;
+
+      // Excel often auto-converts ambiguous D/M/Y CSV dates.
+      // Example: 10/8/26 -> Oct 8, 11/8/26 -> Nov 8, while 13/8/26 remains text.
+      // If the timestamp span is very different from the acquisition interval implied
+      // by the row count, use the declared logger interval for elapsed process time.
+      const ratio = intervalDurationH>0 ? calendarDurationH/intervalDurationH : 1;
+      const inconsistent =
+        !Number.isFinite(calendarDurationH) ||
+        calendarDurationH<=0 ||
+        ratio>1.25 ||
+        ratio<0.75;
+
+      if(inconsistent){
+        const elapsed=rows.map((_,i)=>(i*intervalSec)/3600);
+        return {
+          elapsed,
+          startDate:null,
+          endDate:null,
+          basis:"acquisition interval",
+          intervalSec,
+          warning:`Timestamp dates are inconsistent with the ${intervalSec} s logging interval. Process time was calculated from row count × logging interval instead.`
+        };
+      }
+    }
+
+    const firstValid=dates.find(Boolean);
+    const firstMs=firstValid.getTime();
+    const elapsed=dates.map(d=>d?(d.getTime()-firstMs)/3600000:NaN);
+    return {
+      elapsed,
+      startDate:firstValid,
+      endDate:validDates[validDates.length-1],
+      basis:"timestamps",
+      intervalSec,
+      warning:null
+    };
   }
+
   const nums=vals.map(parseNum);
   const finite=nums.filter(Number.isFinite);
   if(finite.length){
     const start=finite[0];
-    return {elapsed:nums.map(v=>Number.isFinite(v)?v-start:NaN),startDate:null,endDate:null};
+    return {
+      elapsed:nums.map(v=>Number.isFinite(v)?v-start:NaN),
+      startDate:null,
+      endDate:null,
+      basis:"numeric time",
+      intervalSec,
+      warning:null
+    };
   }
-  return {elapsed:[],startDate:null,endDate:null};
+
+  if(intervalSec){
+    return {
+      elapsed:rows.map((_,i)=>(i*intervalSec)/3600),
+      startDate:null,
+      endDate:null,
+      basis:"acquisition interval",
+      intervalSec,
+      warning:`Timestamp values could not be parsed. Process time was calculated from the ${intervalSec} s logging interval.`
+    };
+  }
+
+  return {
+    elapsed:[],
+    startDate:null,
+    endDate:null,
+    basis:"unknown",
+    intervalSec:null,
+    warning:"Time values could not be interpreted."
+  };
 }
 function statsForColumn(rows,col){
   const a=[];
@@ -245,13 +342,20 @@ function renderProcessSummary(){
   const s=processState;
   const important=["DO","pH","Temperature","Stirrer","OUR","CER","RQ","Feed / SUBS_A"];
   const detected=s.columns.filter(c=>important.includes(c.role) || c.role.startsWith("BlueVary vol")).length;
+  const durationDays=Math.floor(s.duration/24);
+  const remainderH=s.duration-durationDays*24;
+  const durationHours=Math.floor(remainderH);
+  const durationMinutes=Math.round((remainderH-durationHours)*60);
+
   let html=`<div class="analysis-status">Time detected: ${escapeHTML(s.timeCol.label)}</div>
     <div class="summary-kpis">
       <div><strong>${s.rows.length.toLocaleString()}</strong><span>Data rows</span></div>
-      <div><strong>${fmt(s.duration,2)} h</strong><span>Process duration</span></div>
+      <div><strong>${fmt(s.duration,2)} h</strong><span>Process duration (${durationDays} d ${durationHours} h ${durationMinutes} min)</span></div>
       <div><strong>${s.columns.length}</strong><span>Total columns</span></div>
       <div><strong>${detected}</strong><span>Key signals detected</span></div>
-    </div>`;
+    </div>
+    <div class="time-basis"><strong>Time basis:</strong> ${escapeHTML(s.timing.basis)}${s.timing.intervalSec?` (${s.timing.intervalSec} s interval)`:""}</div>
+    ${s.timing.warning?`<div class="timestamp-warning"><strong>Timestamp correction:</strong> ${escapeHTML(s.timing.warning)}</div>`:""}`;
   document.getElementById("fileSummary").innerHTML=html;
 }
 function renderDetectedColumns(){
